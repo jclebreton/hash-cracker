@@ -2,10 +2,16 @@
 
 *hash-cracker*  is a tool to crack *cryptographic hash function* using *Providers* and *Comparators* interfaces
 
-## Available providers
+### Available providers
 
 - text file
 
-## Available comparators
+### Available comparators
 
 - LBC hash implementation
+
+### Build & Run
+
+```
+# go run main.go <dictionary-path> <lbc-hash>
+```
