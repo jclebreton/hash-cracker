@@ -39,7 +39,10 @@ func (d *TextFileDictionary) Prepare() (int, error) {
 
 // Next prepares the next value
 func (d *TextFileDictionary) Next() bool {
-	d.scanner.Scan()
+	if !d.scanner.Scan() {
+		return false
+	}
+
 	d.value = d.scanner.Text()
 	if d.scanner.Err() != nil {
 		d.err = errors.Wrap(d.scanner.Err(), "scanner error")
