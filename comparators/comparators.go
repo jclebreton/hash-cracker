@@ -1,8 +1,9 @@
-package cmd
+package comparators
 
 import (
 	"sync"
 
+	"github.com/jclebreton/hash-cracker/providers"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,17 +15,17 @@ type PasswordComparator interface {
 
 var concurrency = 200
 
-func CrackHash(comparator PasswordComparator, p DictionaryProvider) {
+func Compare(comparator PasswordComparator, p providers.DictionaryProvider) {
 	wg := sync.WaitGroup{}
 	gracefulChan := make(chan bool)
 	crashChan := make(chan error)
-	dictionaryChan := make(chan string, 100)
+	dictionaryChan := make(chan string)
 	ResultChan := make(chan string)
 
 	logrus.Infof("cracking hash: %s", comparator.GetHash())
 
 	// Dictionary provider
-	go readDictionary(p, dictionaryChan, crashChan)
+	go providers.Read(p, dictionaryChan, crashChan)
 
 	// Init comparators workers
 	for i := 0; i < concurrency; i++ {

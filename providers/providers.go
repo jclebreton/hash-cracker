@@ -1,4 +1,4 @@
-package cmd
+package providers
 
 import (
 	"os"
@@ -17,7 +17,7 @@ type DictionaryProvider interface {
 	Close() error
 }
 
-func readDictionary(p DictionaryProvider, dictionaryChan chan string, crashChan chan error) {
+func Read(p DictionaryProvider, dictionaryChan chan string, crashChan chan error) {
 	defer close(dictionaryChan)
 
 	// Init provider

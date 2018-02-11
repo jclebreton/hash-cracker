@@ -16,16 +16,25 @@ func InitRootCmd() *cobra.Command {
 		Long:  `hash-cracker is a tool to crack cryptographic hash function using Providers and Comparators interfaces`,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 2 {
-				return errors.New("requires two args")
+				return errors.New("Requires two args")
+			}
+
+			if !isValidHash(args[1]) {
+				return errors.New("Invalid LBC hash")
 			}
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			c := &comparators.LBCPassword{Hash: args[1]}
 			p := providers.NewDictionaryFromFile(args[0])
-			CrackHash(c, p)
+			c := &comparators.LBCPassword{}
+			c.SetHash(args[1])
+			comparators.Compare(c, p)
 		},
 	}
 
 	return rootCmd
+}
+
+func isValidHash(hash string) bool {
+	return 56 == len(hash)
 }
