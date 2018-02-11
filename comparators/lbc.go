@@ -55,6 +55,11 @@ func (p *LBCPassword) SetPlainPassword(password string) error {
 	return nil
 }
 
+// GetHash returns the current LBC hash
+func (p *LBCPassword) GetHash() string {
+	return p.Hash
+}
+
 // SetHash initializes current struct from LBC hash
 func (p *LBCPassword) SetHash(hash string) {
 	p.Salt = hash[0:16]
