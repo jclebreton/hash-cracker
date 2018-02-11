@@ -13,7 +13,7 @@
 ### Build & Run
 
 ```
-# go run main.go <dictionary-path> <lbc-hash>
+$ go run main.go <dictionary-path> <lbc-hash>
 ```
 
 #### Example using CrackStation dictionary

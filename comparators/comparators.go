@@ -37,14 +37,14 @@ func Compare(comparator PasswordComparator, p providers.DictionaryProvider) {
 	go func() {
 		err := <-crashChan
 		logrus.WithError(err).Error("dictionary provider error")
-		graceful(gracefulChan)
+		graceful(concurrency, gracefulChan)
 	}()
 
 	// Success
 	go func() {
 		plainPassword := <-ResultChan
 		logrus.WithField("plain", plainPassword).Info("password found")
-		graceful(gracefulChan)
+		graceful(concurrency, gracefulChan)
 	}()
 
 	wg.Wait()
@@ -66,8 +66,8 @@ func worker(wg *sync.WaitGroup, gracefulChan chan bool, dictionaryChan chan stri
 	}
 }
 
-func graceful(gracefulChan chan bool) {
-	for i := 0; i < concurrency; i++ {
+func graceful(n int, gracefulChan chan bool) {
+	for i := 0; i < n; i++ {
 		gracefulChan <- true
 	}
 }
