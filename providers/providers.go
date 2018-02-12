@@ -17,8 +17,9 @@ type DictionaryProvider interface {
 	Close() error
 }
 
-func Read(p DictionaryProvider, dictionaryChan chan string, crashChan chan error) {
+func Read(p DictionaryProvider, dictionaryChan chan string, crashChan chan error, gracefulChan chan struct{}) {
 	defer close(dictionaryChan)
+	defer close(gracefulChan)
 
 	// Init provider
 	size, err := p.Prepare()

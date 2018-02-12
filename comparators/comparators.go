@@ -5,6 +5,7 @@ import (
 
 	"github.com/jclebreton/hash-cracker/providers"
 	"github.com/sirupsen/logrus"
+	"runtime"
 )
 
 type PasswordComparator interface {
@@ -13,61 +14,56 @@ type PasswordComparator interface {
 	Compare(plain string) bool
 }
 
-var concurrency = 200
+const dictionaryBuffer = 10000
 
 func Compare(comparator PasswordComparator, p providers.DictionaryProvider) {
 	wg := sync.WaitGroup{}
-	gracefulChan := make(chan bool)
+	gracefulChan := make(chan struct{})
 	crashChan := make(chan error)
-	dictionaryChan := make(chan string)
+	dictionaryChan := make(chan string, dictionaryBuffer)
 	ResultChan := make(chan string)
 
-	logrus.Infof("cracking hash: %s", comparator.GetHash())
 
 	// Dictionary provider
-	go providers.Read(p, dictionaryChan, crashChan)
+	go providers.Read(p, dictionaryChan, crashChan, gracefulChan)
 
 	// Init comparators workers
-	for i := 0; i < concurrency; i++ {
+	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
 		go worker(&wg, gracefulChan, dictionaryChan, ResultChan, comparator)
 	}
+
+	logrus.Infof("cracking hash: %s with %d logical CPUs and %d go routines", comparator.GetHash(),
+		runtime.NumCPU(), runtime.NumGoroutine())
 
 	// Provider error
 	go func() {
 		err := <-crashChan
 		logrus.WithError(err).Error("dictionary provider error")
-		graceful(concurrency, gracefulChan)
+		close(gracefulChan)
 	}()
 
 	// Success
 	go func() {
 		plainPassword := <-ResultChan
 		logrus.WithField("plain", plainPassword).Info("password found")
-		graceful(concurrency, gracefulChan)
+		close(gracefulChan)
 	}()
 
 	wg.Wait()
 }
 
-func worker(wg *sync.WaitGroup, gracefulChan chan bool, dictionaryChan chan string, ResultChan chan string, c PasswordComparator) {
+func worker(wg *sync.WaitGroup, gracefulChan chan struct{}, dictionaryChan chan string, ResultChan chan string, c PasswordComparator) {
+	defer wg.Done()
 	for {
 		select {
 		case passwd := <-dictionaryChan:
 			if c.Compare(passwd) {
 				ResultChan <- passwd
-				wg.Done()
 				return
 			}
 		case <-gracefulChan:
-			wg.Done()
 			return
 		}
-	}
-}
-
-func graceful(n int, gracefulChan chan bool) {
-	for i := 0; i < n; i++ {
-		gracefulChan <- true
 	}
 }
