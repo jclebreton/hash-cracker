@@ -16,5 +16,5 @@ func (l *LbcHash) setSalt(salt string) {
 func (l *LbcHash) getHash(plain string) string {
 	h := sha1.New()
 	h.Write([]byte(l.salt + plain))
-	return l.salt + fmt.Sprintf("%x", h.Sum(nil))
+	return fmt.Sprintf("%s%x", l.salt, h.Sum(nil))
 }
