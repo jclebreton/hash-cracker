@@ -3,26 +3,27 @@ package comparators
 import (
 	"sync"
 
+	"runtime"
+
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/sirupsen/logrus"
-	"runtime"
 )
-
-type PasswordComparator interface {
-	GetHash() string
-	SetHash(hash string)
-	Compare(plain string) bool
-}
 
 const dictionaryBuffer = 10000
 
+// PasswordComparator is the interface used by comparator
+type PasswordComparator interface {
+	Compare(plain string) bool
+	GetHash() string
+}
+
+// Compare will start the process
 func Compare(comparator PasswordComparator, p dictionaries.DictionaryProvider) {
 	wg := sync.WaitGroup{}
 	gracefulChan := make(chan struct{})
 	crashChan := make(chan error)
 	dictionaryChan := make(chan string, dictionaryBuffer)
 	ResultChan := make(chan string)
-
 
 	// Dictionary provider
 	go dictionaries.Read(p, dictionaryChan, crashChan, gracefulChan)
@@ -32,9 +33,6 @@ func Compare(comparator PasswordComparator, p dictionaries.DictionaryProvider) {
 		wg.Add(1)
 		go worker(&wg, gracefulChan, dictionaryChan, ResultChan, comparator)
 	}
-
-	logrus.Infof("cracking hash: %s with %d logical CPUs and %d go routines", comparator.GetHash(),
-		runtime.NumCPU(), runtime.NumGoroutine())
 
 	// Provider error
 	go func() {
@@ -49,6 +47,8 @@ func Compare(comparator PasswordComparator, p dictionaries.DictionaryProvider) {
 		logrus.WithField("plain", plainPassword).Info("password found")
 		close(gracefulChan)
 	}()
+
+	logrus.Infof("cracking hash: %s using %d workers", comparator.GetHash(), runtime.NumCPU())
 
 	wg.Wait()
 }

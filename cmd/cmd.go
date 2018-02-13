@@ -25,10 +25,13 @@ func InitRootCmd() *cobra.Command {
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			p := dictionaries.NewDictionaryFromFile(args[0])
-			c := &comparators.LBCPassword{}
-			c.SetHash(args[1])
-			comparators.Compare(c, p)
+			saltedHash := args[1]
+			hash := &comparators.Hash{}
+			hash.SetHasher(&comparators.LbcHash{})
+			hash.SetSalt(saltedHash[0:16])
+			hash.SetHash(saltedHash)
+			dictionary := dictionaries.NewDictionaryFromFile(args[0])
+			comparators.Compare(hash, dictionary)
 		},
 	}
 
