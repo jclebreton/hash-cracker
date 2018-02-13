@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/jclebreton/hash-cracker/comparators"
-	"github.com/jclebreton/hash-cracker/providers"
+	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +25,7 @@ func InitRootCmd() *cobra.Command {
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			p := providers.NewDictionaryFromFile(args[0])
+			p := dictionaries.NewDictionaryFromFile(args[0])
 			c := &comparators.LBCPassword{}
 			c.SetHash(args[1])
 			comparators.Compare(c, p)

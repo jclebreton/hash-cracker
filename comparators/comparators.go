@@ -3,7 +3,7 @@ package comparators
 import (
 	"sync"
 
-	"github.com/jclebreton/hash-cracker/providers"
+	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/sirupsen/logrus"
 	"runtime"
 )
@@ -16,7 +16,7 @@ type PasswordComparator interface {
 
 const dictionaryBuffer = 10000
 
-func Compare(comparator PasswordComparator, p providers.DictionaryProvider) {
+func Compare(comparator PasswordComparator, p dictionaries.DictionaryProvider) {
 	wg := sync.WaitGroup{}
 	gracefulChan := make(chan struct{})
 	crashChan := make(chan error)
@@ -25,7 +25,7 @@ func Compare(comparator PasswordComparator, p providers.DictionaryProvider) {
 
 
 	// Dictionary provider
-	go providers.Read(p, dictionaryChan, crashChan, gracefulChan)
+	go dictionaries.Read(p, dictionaryChan, crashChan, gracefulChan)
 
 	// Init comparators workers
 	for i := 0; i < runtime.NumCPU(); i++ {
