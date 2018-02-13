@@ -1,4 +1,4 @@
-package dictionaries
+package providers
 
 import (
 	"testing"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 var testFile = "test.txt"
@@ -27,30 +26,39 @@ func removeFile(t *testing.T) {
 
 func TestPrepare_success(t *testing.T) {
 	createFile(t)
-	d := NewDictionaryFromFile(testFile)
-	size, err := d.Prepare()
+	d := New(testFile)
+	err := d.Prepare()
 	require.NoError(t, err)
-	assert.Equal(t, 30, size)
+	assert.Equal(t, 4, d.GetTotal())
+	removeFile(t)
+}
+
+func TestGetName_success(t *testing.T) {
+	createFile(t)
+	d := New(testFile)
+	err := d.Prepare()
+	require.NoError(t, err)
+	assert.Equal(t, testFile, d.GetName())
 	removeFile(t)
 }
 
 func TestPrepare_error_open_file(t *testing.T) {
 	removeFile(t)
-	d := NewDictionaryFromFile(testFile)
-	_, err := d.Prepare()
+	d := New(testFile)
+	err := d.Prepare()
 	require.Error(t, err)
 }
 
 func TestClose_error(t *testing.T) {
-	d := &TextFileDictionary{}
+	d := &TextFile{}
 	err := d.Close()
 	require.Error(t, err)
 }
 
 func TestClose_success(t *testing.T) {
 	createFile(t)
-	d := NewDictionaryFromFile(testFile)
-	_, err := d.Prepare()
+	d := New(testFile)
+	err := d.Prepare()
 	require.NoError(t, err)
 	err = d.Close()
 	require.NoError(t, err)
@@ -59,13 +67,10 @@ func TestClose_success(t *testing.T) {
 
 func TestNext_success(t *testing.T) {
 	createFile(t)
-	d := NewDictionaryFromFile(testFile)
+	d := New(testFile)
 
-	_, err := d.Prepare()
+	err := d.Prepare()
 	require.NoError(t, err)
-
-	bar := &pb.ProgressBar{}
-	d.SetProgressBar(bar.NewProxyReader(d.GetReader()))
 
 	assert.True(t, d.Next())
 	assert.Equal(t, "azerty1234", d.Value())
@@ -86,7 +91,7 @@ func TestNext_success(t *testing.T) {
 }
 
 func TestErr_error(t *testing.T) {
-	d := &TextFileDictionary{}
+	d := &TextFile{}
 	d.err = errors.New("foo")
 	err := d.Err()
 	require.Error(t, err)

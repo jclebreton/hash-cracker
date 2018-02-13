@@ -3,15 +3,20 @@ package cmd
 import (
 	"errors"
 
-	"github.com/jclebreton/hash-cracker/comparators"
-	"github.com/jclebreton/hash-cracker/dictionaries"
+	"github.com/jclebreton/hash-cracker/hashers"
+	"github.com/jclebreton/hash-cracker/providers"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	logrus.SetLevel(logrus.DebugLevel)
+}
 
 // InitRootCmd configure and initialized hash-cracker command
 func InitRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "hash-cracker [dictionary-path] [lbc-hash]",
+		Use:   "hash-cracker [hashes-path] [dictionary-hash]",
 		Short: "hash-cracker is a tool to crack cryptographic hash function",
 		Long:  `hash-cracker is a tool to crack cryptographic hash function using Providers and Comparators interfaces`,
 		Args: func(cmd *cobra.Command, args []string) error {
@@ -19,25 +24,15 @@ func InitRootCmd() *cobra.Command {
 				return errors.New("Requires two args")
 			}
 
-			if !isValidHash(args[1]) {
-				return errors.New("Invalid LBC hash")
-			}
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			saltedHash := args[1]
-			hash := &comparators.Hash{}
-			hash.SetHasher(&comparators.LbcHash{})
-			hash.SetSalt(saltedHash[0:16])
-			hash.SetHash(saltedHash)
-			dictionary := dictionaries.NewDictionaryFromFile(args[0])
-			comparators.Compare(hash, dictionary)
+			hashes := providers.New(args[0])
+			dictionary := providers.New(args[1])
+			hasher := &hashers.LbcHash{}
+			Run(hashes, dictionary, hasher)
 		},
 	}
 
 	return rootCmd
-}
-
-func isValidHash(hash string) bool {
-	return 56 == len(hash)
 }
