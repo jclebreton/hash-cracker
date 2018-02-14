@@ -38,14 +38,14 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	if err != nil {
 		logrus.WithError(err).Error("dictionary provider error")
 	}
-	dictionaries := splitSlice(dictionary, runtime.NumCPU())
+	dic := splitSlice(dictionary, runtime.NumCPU())
 
 	// Init workers
 	hashesChans := make(map[int]chan Hash)
 	resetChans := make(map[int]chan struct{})
 	for i := 1; i <= runtime.NumCPU(); i++ {
 		wg.Add(1)
-		resetChans[i], hashesChans[i] = worker(i, &wg, dictionaries[i-1], resultChan)
+		resetChans[i], hashesChans[i] = worker(i, &wg, dic[i-1], resultChan)
 	}
 
 	// Provider error
