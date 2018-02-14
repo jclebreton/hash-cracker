@@ -3,14 +3,15 @@ package cmd
 import (
 	"errors"
 
+	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
-	"github.com/jclebreton/hash-cracker/providers"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func init() {
-	logrus.SetLevel(logrus.DebugLevel)
+	//logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 }
 
 // InitRootCmd configure and initialized hash-cracker command
@@ -27,8 +28,8 @@ func InitRootCmd() *cobra.Command {
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			hashes := providers.New(args[0])
-			dictionary := providers.New(args[1])
+			hashes := dictionaries.New(args[0])
+			dictionary := dictionaries.New(args[1])
 			hasher := &hashers.LbcHash{}
 			Run(hashes, dictionary, hasher)
 		},

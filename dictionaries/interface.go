@@ -1,4 +1,4 @@
-package providers
+package dictionaries
 
 // Provider is the interface used to provide dictionaries or hashes
 type Provider interface {

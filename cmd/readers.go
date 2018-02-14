@@ -1,14 +1,16 @@
 package cmd
 
 import (
+	"time"
+
+	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
-	"github.com/jclebreton/hash-cracker/providers"
 	"github.com/pkg/errors"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 // DictionaryReader returns the dictionary file
-func DictionaryReader(p providers.Provider, n int) ([]string, error) {
+func DictionaryReader(p dictionaries.Provider, n int) ([]string, error) {
 	// Init provider
 	if err := p.Prepare(); err != nil {
 		return nil, errors.Wrap(err, "unable to prepare dictionary provider")
@@ -39,7 +41,7 @@ func DictionaryReader(p providers.Provider, n int) ([]string, error) {
 }
 
 // HashesReader returns the hashes
-func HashesReader(p providers.Provider, errChan chan error, hashesChans map[int]chan Hash, hasher hashers.Hasher) {
+func HashesReader(p dictionaries.Provider, errChan chan error, hashesChans map[int]chan Hash, hasher hashers.Hasher) {
 	// Init provider
 	if err := p.Prepare(); err != nil {
 		errChan <- errors.Wrap(err, "unable to prepare dictionary provider")
@@ -70,4 +72,7 @@ func HashesReader(p providers.Provider, errChan chan error, hashesChans map[int]
 	if err := p.Close(); err != nil {
 		errChan <- errors.Wrap(err, "unable to close dictionary provider")
 	}
+
+	time.Sleep(time.Second)
+	closeWorkers(hashesChans)
 }

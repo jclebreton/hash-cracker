@@ -7,13 +7,13 @@ import (
 
 	"os"
 
+	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
-	"github.com/jclebreton/hash-cracker/providers"
 	"github.com/sirupsen/logrus"
 )
 
 // Run will start the process
-func Run(h providers.Provider, d providers.Provider, hasher hashers.Hasher) {
+func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher) {
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
 	resultChan := make(chan map[int]Hash)
@@ -104,6 +104,11 @@ func worker(id int, wg *sync.WaitGroup, dictionary []string, resultChan chan map
 	return resetChan, hashesChan
 }
 
+func closeWorkers(hashesChans map[int]chan Hash) {
+	for workerID, _ := range hashesChans {
+		close(hashesChans[workerID])
+	}
+}
 func splitSlice(s []string, n int) [][]string {
 	var divided [][]string
 	chunkSize := (len(s) + n - 1) / n
