@@ -10,5 +10,5 @@ type Provider interface {
 	Err() error
 	Close() error
 
-	GetTotal() int
+	GetTotal() int64
 }

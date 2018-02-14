@@ -11,15 +11,15 @@ import (
 )
 
 // DictionaryReader returns the dictionary file
-func DictionaryReader(p dictionaries.Provider, n int) ([]string, error) {
+func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, n int) ([]string, error) {
+	defer bar.Finish()
+
 	// Init provider
 	if err := p.Prepare(); err != nil {
 		return nil, errors.Wrap(err, "unable to prepare dictionary provider")
 	}
 
-	// Progress bar
-	bar := pb.New(p.GetTotal()).SetUnits(pb.U_NO).Prefix(p.GetName()).Start()
-	defer bar.Finish()
+	bar.Total = p.GetTotal()
 
 	// Read values
 	result := []string{}
@@ -42,15 +42,16 @@ func DictionaryReader(p dictionaries.Provider, n int) ([]string, error) {
 }
 
 // HashesReader returns the hashes
-func HashesReader(p dictionaries.Provider, errChan chan error, hashesChans map[int]chan Hash, hasher hashers.Hasher) {
+func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Provider, errChan chan error, hashesChans map[int]chan Hash, hasher hashers.Hasher) {
+	defer bar1.Finish()
+
 	// Init provider
 	if err := p.Prepare(); err != nil {
 		errChan <- errors.Wrap(err, "unable to prepare dictionary provider")
 	}
 
-	// Progress bar
-	bar := pb.New(p.GetTotal()).SetUnits(pb.U_NO).Prefix(p.GetName()).Start()
-	defer bar.Finish()
+	bar1.Total = p.GetTotal()
+	bar2.Total = p.GetTotal()
 
 	// Read values and sent them to workers
 	for p.Next() {
@@ -69,7 +70,7 @@ func HashesReader(p dictionaries.Provider, errChan chan error, hashesChans map[i
 			hashesChans[workerID] <- h
 		}
 
-		bar.Increment()
+		bar1.Increment()
 	}
 
 	// Last provider error

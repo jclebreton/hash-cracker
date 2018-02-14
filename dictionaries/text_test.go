@@ -29,7 +29,7 @@ func TestPrepare_success(t *testing.T) {
 	d := New(testFile)
 	err := d.Prepare()
 	require.NoError(t, err)
-	assert.Equal(t, 4, d.GetTotal())
+	assert.Equal(t, int64(4), d.GetTotal())
 	removeFile(t)
 }
 

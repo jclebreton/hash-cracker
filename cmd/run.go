@@ -10,6 +10,7 @@ import (
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 // Run will start the process
@@ -18,10 +19,22 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	errChan := make(chan error)
 	resultChan := make(chan map[int]Hash)
 
-	logrus.Infof("cracking using %d workers", runtime.NumCPU())
+	logrus.Infof("%d workers", runtime.NumCPU())
+
+	//Progression bars
+	pb1 := pb.New(0).SetUnits(pb.U_NO).Prefix("Dictionary")
+	pb2 := pb.New(0).SetUnits(pb.U_NO).Prefix("    Hashes")
+	pb3 := pb.New(0).SetUnits(pb.U_NO).Prefix("   Cracked")
+	pool, err := pb.StartPool(pb1, pb2, pb3)
+	pb1.ShowPercent = true
+	pb2.ShowPercent = true
+	pb3.ShowPercent = true
+	if err != nil {
+		logrus.WithError(err).Fatal("progress bar error")
+	}
 
 	// Read dictionary
-	dictionary, err := DictionaryReader(d, runtime.NumCPU())
+	dictionary, err := DictionaryReader(pb1, d, runtime.NumCPU())
 	if err != nil {
 		logrus.WithError(err).Error("dictionary provider error")
 	}
@@ -45,7 +58,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	}()
 
 	// Read hashes
-	go HashesReader(h, errChan, hashesChans, hasher)
+	go HashesReader(pb2, pb3, h, errChan, hashesChans, hasher)
 
 	// Success
 	go func() {
@@ -58,6 +71,8 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 		for {
 			result := <-resultChan
 			for chanID, hash := range result {
+				pb3.Increment()
+
 				text := hash.GetHash() + ":" + hash.GetPlain() + "\n"
 				if _, err = f.WriteString(text); err != nil {
 					logrus.WithError(err).Fatal("unable to save results")
@@ -74,6 +89,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	}()
 
 	wg.Wait()
+	pool.Stop()
 }
 
 func worker(id int, wg *sync.WaitGroup, dictionary []string, resultChan chan map[int]Hash) (chan struct{}, chan Hash) {

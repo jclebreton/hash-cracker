@@ -17,9 +17,7 @@ type TextFile struct {
 	value   string
 	err     error
 	file    *os.File
-
-	total   int
-	current int
+	total   int64
 }
 
 // NewDictionaryFromFile is the constructor
@@ -85,18 +83,18 @@ func (d *TextFile) Close() error {
 }
 
 // GetTotal returns the number of lines
-func (d *TextFile) GetTotal() int {
+func (d *TextFile) GetTotal() int64 {
 	return d.total
 }
 
-func lineCounter(r io.Reader) (int, error) {
+func lineCounter(r io.Reader) (int64, error) {
 	buf := make([]byte, 32*1024)
-	count := 0
+	var count int64
 	lineSep := []byte{'\n'}
 
 	for {
 		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], lineSep)
+		count += int64(bytes.Count(buf[:c], lineSep))
 
 		switch {
 		case err == io.EOF:
