@@ -30,7 +30,7 @@ func InitRootCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			hashes := dictionaries.New(args[0])
 			dictionary := dictionaries.New(args[1])
-			hasher := &hashers.LbcHash{}
+			hasher := &hashers.Sha1WithSalt{}
 			Run(hashes, dictionary, hasher)
 		},
 	}

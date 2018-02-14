@@ -8,13 +8,13 @@
 
 ### Available hashers
 
-- sha1($salt.$pass)
+- $salt.sha1($salt.$pass)
 
 ### Build & Run
 
 ```
 $ dep ensure
-$ go run main.go <lbchash-path> <dictionary-path>
+$ go run main.go <hash-path> <dictionary-path>
 ```
 
 #### Example using CrackStation dictionary

@@ -6,7 +6,7 @@ import (
 	"github.com/jclebreton/hash-cracker/hashers"
 )
 
-// Hash is the struct to store LBC authentication fields
+// Hash is the struct to store data
 type Hash struct {
 	hasher hashers.Hasher
 	hash   string
