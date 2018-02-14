@@ -6,6 +6,7 @@ import (
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -53,13 +54,21 @@ func HashesReader(p dictionaries.Provider, errChan chan error, hashesChans map[i
 
 	// Read values and sent them to workers
 	for p.Next() {
+
+		//Build hash
+		hash := p.Value()
+		h := Hash{}
+		h.SetHasher(hasher)
+		if err := h.SetHash(hash); err != nil {
+			logrus.WithField("hash", hash).WithError(err).Error("HashesReader error")
+			continue
+		}
+
+		// Send the same hash to all workers
 		for workerID, _ := range hashesChans {
-			hash := p.Value()
-			h := Hash{}
-			h.SetHasher(hasher)
-			h.SetHash(hash)
 			hashesChans[workerID] <- h
 		}
+
 		bar.Increment()
 	}
 
