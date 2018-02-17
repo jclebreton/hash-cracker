@@ -5,6 +5,8 @@ import (
 
 	"os"
 
+	"strings"
+
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/pkg/errors"
@@ -43,7 +45,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 
 	// Init workers
 	hashesChans := make(map[int]chan Hash, 10000)
-	resetChans := make(map[int]chan struct{})
+	resetChans := make(map[int]chan Hash)
 	for i := 1; i <= nbWorkers; i++ {
 		wg.Add(1)
 		resetChans[i], hashesChans[i] = worker(i, &wg, errChan, dictionaries[i-1], resultChan)
@@ -96,7 +98,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 				//Reset all worker excepted
 				for k, _ := range resetChans {
 					if k != chanID {
-						resetChans[k] <- struct{}{}
+						resetChans[k] <- hash
 					}
 				}
 			}
@@ -107,9 +109,9 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	pool.Stop()
 }
 
-func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan struct{}, chan Hash) {
+func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan Hash, chan Hash) {
 	logrus.WithField("worker", id).WithField("words", dictionary).Debug("Dictionary")
-	resetChan := make(chan struct{})
+	resetChan := make(chan Hash)
 	hashesChan := make(chan Hash)
 
 	go func() {
@@ -118,9 +120,11 @@ func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string,
 		start:
 			for _, plain := range dictionary {
 				select {
-				case <-resetChan:
-					logrus.WithField("worker", id).WithField("hash", hash.GetHash()).Debug("reset")
-					break start
+				case hashToReset := <-resetChan:
+					if strings.Compare(hashToReset.GetHash(), hash.GetHash()) == 0 {
+						logrus.WithField("worker", id).WithField("hash", hash.GetHash()).Debug("reset")
+						break start
+					}
 				default:
 					var ok bool
 					var err error
