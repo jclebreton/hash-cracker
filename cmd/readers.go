@@ -54,7 +54,7 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 	}
 
 	bar1.Total = p.GetTotal()
-	bar2.Total = p.GetTotal()
+	var current int64
 
 	// Read values and sent them to workers
 	for p.Next() {
@@ -75,6 +75,8 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 		}
 
 		bar1.Increment()
+		current++
+		bar2.Total = current
 	}
 
 	// Last provider error
