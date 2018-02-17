@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/jclebreton/hash-cracker/hashers"
+	"github.com/pkg/errors"
 )
 
 // Hash is the struct to store data
@@ -43,6 +44,10 @@ func (p *Hash) SetPlain(plain string) {
 }
 
 // Compare will matches hashes using the plain password
-func (p *Hash) Compare(plain string) bool {
-	return strings.Compare(p.hasher.GetHash(plain), p.hash) == 0
+func (p *Hash) Compare(plain string) (bool, error) {
+	hash, err := p.hasher.GetHash(plain)
+	if err != nil {
+		return false, errors.Wrap(err, "Compare error")
+	}
+	return strings.Compare(hash, p.hash) == 0, nil
 }

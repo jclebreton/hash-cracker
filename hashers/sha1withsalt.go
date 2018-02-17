@@ -22,8 +22,11 @@ func (l *Sha1WithSalt) SetSaltFromHash(hash string) error {
 }
 
 // GetHash is the hash getter
-func (l *Sha1WithSalt) GetHash(plain string) string {
+func (l *Sha1WithSalt) GetHash(plain string) (string, error) {
 	h := sha1.New()
-	h.Write([]byte(l.salt + plain))
-	return fmt.Sprintf("%s%x", l.salt, h.Sum(nil))
+	_, err := h.Write([]byte(l.salt + plain))
+	if err != nil {
+		return "", errors.Wrap(err, "GetHash error")
+	}
+	return fmt.Sprintf("%s%x", l.salt, h.Sum(nil)), nil
 }

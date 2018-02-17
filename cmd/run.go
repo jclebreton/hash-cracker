@@ -7,6 +7,7 @@ import (
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/cheggaaa/pb.v1"
 )
@@ -47,7 +48,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	resetChans := make(map[int]chan struct{})
 	for i := 1; i <= nbWorkers; i++ {
 		wg.Add(1)
-		resetChans[i], hashesChans[i] = worker(i, &wg, dictionaries[i-1], resultChan)
+		resetChans[i], hashesChans[i] = worker(i, &wg, errChan, dictionaries[i-1], resultChan)
 	}
 
 	// Provider error
@@ -105,7 +106,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	pool.Stop()
 }
 
-func worker(id int, wg *sync.WaitGroup, dictionary []string, resultChan chan map[int]Hash) (chan struct{}, chan Hash) {
+func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan struct{}, chan Hash) {
 	resetChan := make(chan struct{})
 	hashesChan := make(chan Hash)
 
@@ -119,7 +120,14 @@ func worker(id int, wg *sync.WaitGroup, dictionary []string, resultChan chan map
 					logrus.WithField("worker", id).WithField("hash", hash.GetHash()).Debug("reset")
 					break start
 				default:
-					if hash.Compare(plain) {
+					var ok bool
+					var err error
+					if ok, err = hash.Compare(plain); err != nil {
+						logrus.WithError(err).Error("unable to compare hash")
+						errChan <- errors.Wrap(err, "unable to compare hash")
+						return
+					}
+					if ok {
 						hash.SetPlain(plain)
 						resultChan <- map[int]Hash{id: hash}
 						logrus.WithField("worker", id).WithField("hash", hash.GetHash()).Debug("found")
