@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"runtime"
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
@@ -31,7 +32,7 @@ func InitRootCmd() *cobra.Command {
 			hashes := dictionaries.New(args[0])
 			dictionary := dictionaries.New(args[1])
 			hasher := &hashers.Sha1WithSalt{}
-			Run(hashes, dictionary, hasher)
+			Run(hashes, dictionary, hasher, runtime.NumCPU())
 		},
 	}
 

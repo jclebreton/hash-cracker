@@ -11,7 +11,7 @@ import (
 )
 
 // DictionaryReader returns the dictionary file
-func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, n int) ([]string, error) {
+func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider) ([]string, error) {
 	defer bar.Finish()
 
 	// Init provider

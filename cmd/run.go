@@ -3,8 +3,6 @@ package cmd
 import (
 	"sync"
 
-	"runtime"
-
 	"os"
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
@@ -14,12 +12,12 @@ import (
 )
 
 // Run will start the process
-func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher) {
+func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int) {
+	logrus.Infof("%d workers", nbWorkers)
+
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
 	resultChan := make(chan map[int]Hash)
-
-	logrus.Infof("%d workers", runtime.NumCPU())
 
 	//Progression bars
 	pb1 := pb.New(0).SetUnits(pb.U_NO).Prefix("Dictionary")
@@ -34,16 +32,16 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	}
 
 	// Read dictionary
-	dictionary, err := DictionaryReader(pb1, d, runtime.NumCPU())
+	dictionary, err := DictionaryReader(pb1, d)
 	if err != nil {
 		logrus.WithError(err).Error("dictionary provider error")
 	}
-	dic := splitSlice(dictionary, runtime.NumCPU())
+	dic := splitSlice(dictionary, nbWorkers)
 
 	// Init workers
-	hashesChans := make(map[int]chan Hash)
+	hashesChans := make(map[int]chan Hash, 10000)
 	resetChans := make(map[int]chan struct{})
-	for i := 1; i <= runtime.NumCPU(); i++ {
+	for i := 1; i <= nbWorkers; i++ {
 		wg.Add(1)
 		resetChans[i], hashesChans[i] = worker(i, &wg, dic[i-1], resultChan)
 	}
