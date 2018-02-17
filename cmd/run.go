@@ -36,14 +36,18 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	if err != nil {
 		logrus.WithError(err).Error("dictionary provider error")
 	}
-	dic := splitSlice(dictionary, nbWorkers)
+	dictionaries := splitSlice(dictionary, nbWorkers)
+	if len(dictionaries) < nbWorkers {
+		nbWorkers = len(dictionaries)
+		logrus.Infof("Reduce the number of workers to %d", nbWorkers)
+	}
 
 	// Init workers
 	hashesChans := make(map[int]chan Hash, 10000)
 	resetChans := make(map[int]chan struct{})
 	for i := 1; i <= nbWorkers; i++ {
 		wg.Add(1)
-		resetChans[i], hashesChans[i] = worker(i, &wg, dic[i-1], resultChan)
+		resetChans[i], hashesChans[i] = worker(i, &wg, dictionaries[i-1], resultChan)
 	}
 
 	// Provider error
