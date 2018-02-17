@@ -60,18 +60,17 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 	for p.Next() {
 
 		//Build hash
-		hash := p.Value()
-		h := Hash{}
-		h.SetHasher(hasher)
-		if err := h.SetHash(hash); err != nil {
-			logrus.WithField("hash", hash).WithError(err).Error("HashesReader error")
-			errChan <- errors.Wrap(err, fmt.Sprintf("hash (%s) error", hash))
+		hash := Hash{}
+		hash.SetHasher(hasher)
+		if err := hash.SetHash(p.Value()); err != nil {
+			logrus.WithField("hash", hash.GetHash()).WithError(err).Error("HashesReader error")
+			errChan <- errors.Wrap(err, fmt.Sprintf("hash (%s) error", hash.GetHash()))
 			return
 		}
 
 		// Send the same hash to all workers
 		for workerID, _ := range hashesChans {
-			hashesChans[workerID] <- h
+			hashesChans[workerID] <- hash
 		}
 
 		bar1.Increment()

@@ -18,7 +18,7 @@ import (
 func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int) {
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
-	resultChan := make(chan map[int]Hash)
+	resultChan := make(chan map[int]Hash, 10000)
 
 	//Progression bars
 	pb1 := pb.New(0).SetUnits(pb.U_NO).Prefix("Dictionary")
@@ -126,14 +126,12 @@ func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string,
 						break start
 					}
 				default:
-					var ok bool
-					var err error
-					if ok, err = hash.Compare(plain); err != nil {
+					ok, err := hash.Compare(plain)
+					if err != nil {
 						logrus.WithError(err).Error("unable to compare hash")
 						errChan <- errors.Wrap(err, "unable to compare hash")
 						return
-					}
-					if ok {
+					} else if ok {
 						hash.SetPlain(plain)
 						resultChan <- map[int]Hash{id: hash}
 						logrus.WithField("worker", id).WithField("hash", hash.GetHash()).Debug("found")

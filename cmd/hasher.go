@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/pkg/errors"
 )
@@ -15,39 +13,36 @@ type Hash struct {
 }
 
 // SetHasher is the hasher setter
-func (p *Hash) SetHasher(hasher hashers.Hasher) {
-	p.hasher = hasher
+func (h *Hash) SetHasher(hasher hashers.Hasher) {
+	h.hasher = hasher
 }
 
 // GetHash is the hash getter
-func (p *Hash) GetHash() string {
-	return p.hash
+func (h *Hash) GetHash() string {
+	return h.hash
 }
 
 // SetHash is the hash and salt setter
-func (p *Hash) SetHash(hash string) error {
-	if err := p.hasher.SetSaltFromHash(hash); err != nil {
-		return err
-	}
-	p.hash = hash
+func (h *Hash) SetHash(hash string) error {
+	h.hash = hash
 	return nil
 }
 
 // GetPlain is the plain getter
-func (p *Hash) GetPlain() string {
-	return p.plain
+func (h *Hash) GetPlain() string {
+	return h.plain
 }
 
 // SetPlain is the plain setter
-func (p *Hash) SetPlain(plain string) {
-	p.plain = plain
+func (h *Hash) SetPlain(plain string) {
+	h.plain = plain
 }
 
 // Compare will matches hashes using the plain password
-func (p *Hash) Compare(plain string) (bool, error) {
-	hash, err := p.hasher.GetHash(plain)
+func (h *Hash) Compare(plain string) (bool, error) {
+	hash, err := h.hasher.Compare(h.hash, plain)
 	if err != nil {
 		return false, errors.Wrap(err, "Compare error")
 	}
-	return strings.Compare(hash, p.hash) == 0, nil
+	return hash == h.hash, nil
 }

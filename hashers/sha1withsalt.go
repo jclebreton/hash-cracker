@@ -2,6 +2,7 @@ package hashers
 
 import (
 	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -9,24 +10,29 @@ import (
 
 // Sha1WithSalt use the hash mode: $salt.sha1($salt.$pass)
 type Sha1WithSalt struct {
-	salt string
 }
 
-// SetSaltFromHash is the salt setter
-func (l *Sha1WithSalt) SetSaltFromHash(hash string) error {
+func (s *Sha1WithSalt) getSaltFromHash(hash string) (string, error) {
 	if len(hash) != 56 {
-		return errors.New("not a valid hash")
+		return "", errors.New("unable to get salt from hash")
 	}
-	l.salt = hash[0:16]
-	return nil
+	return hash[0:16], nil
 }
 
 // GetHash is the hash getter
-func (l *Sha1WithSalt) GetHash(plain string) (string, error) {
-	h := sha1.New()
-	_, err := h.Write([]byte(l.salt + plain))
+func (s *Sha1WithSalt) Compare(hash, plain string) (string, error) {
+	salt, err := s.getSaltFromHash(hash)
 	if err != nil {
-		return "", errors.Wrap(err, "GetHash error")
+		return "", errors.Wrap(err, "Compare error")
 	}
-	return fmt.Sprintf("%s%x", l.salt, h.Sum(nil)), nil
+
+	h := sha1.New()
+	_, err = h.Write([]byte(salt + plain))
+	if err != nil {
+		return "", errors.Wrap(err, "Compare error")
+	}
+
+	sha1_hash := hex.EncodeToString(h.Sum(nil))
+
+	return fmt.Sprintf("%s%s", salt, sha1_hash), nil
 }
