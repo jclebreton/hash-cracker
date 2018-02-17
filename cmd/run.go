@@ -75,7 +75,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 			for chanID, hash := range result {
 				pb3.Increment()
 
-				text := hash.GetHash() + ":" + hash.GetPlain() + "\n"
+				text := hash.GetHash() + "\t" + hash.GetPlain() + "\n"
 				if _, err = f.WriteString(text); err != nil {
 					logrus.WithError(err).Fatal("unable to save results")
 				}
