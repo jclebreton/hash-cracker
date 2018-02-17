@@ -3,6 +3,8 @@ package cmd
 import (
 	"time"
 
+	"fmt"
+
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/pkg/errors"
@@ -63,7 +65,8 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 		h.SetHasher(hasher)
 		if err := h.SetHash(hash); err != nil {
 			logrus.WithField("hash", hash).WithError(err).Error("HashesReader error")
-			continue
+			errChan <- errors.Wrap(err, fmt.Sprintf("hash (%s) error", hash))
+			return
 		}
 
 		// Send the same hash to all workers
