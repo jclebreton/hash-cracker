@@ -32,6 +32,7 @@ func InitRootCmd() *cobra.Command {
 			hashes := dictionaries.New(args[0])
 			dictionary := dictionaries.New(args[1])
 			hasher := &hashers.Sha1WithSalt{}
+			logrus.Infof("%d logical cpu", runtime.NumCPU())
 			Run(hashes, dictionary, hasher, runtime.NumCPU())
 		},
 	}

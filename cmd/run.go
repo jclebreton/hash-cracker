@@ -14,8 +14,6 @@ import (
 
 // Run will start the process
 func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int) {
-	logrus.Infof("%d workers", nbWorkers)
-
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
 	resultChan := make(chan map[int]Hash)
@@ -40,8 +38,8 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	dictionaries := splitSlice(dictionary, nbWorkers)
 	if len(dictionaries) < nbWorkers {
 		nbWorkers = len(dictionaries)
-		logrus.Infof("Reduce the number of workers to %d", nbWorkers)
 	}
+	logrus.Infof("%d workers", nbWorkers)
 
 	// Init workers
 	hashesChans := make(map[int]chan Hash, 10000)
@@ -49,6 +47,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	for i := 1; i <= nbWorkers; i++ {
 		wg.Add(1)
 		resetChans[i], hashesChans[i] = worker(i, &wg, errChan, dictionaries[i-1], resultChan)
+		logrus.WithField("id", i).Debug("worker started")
 	}
 
 	// Provider error
@@ -59,16 +58,18 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 		}
 		defer f.Close()
 
-		err = <-errChan
+		logrus.Debug("error routine started")
 
+		err = <-errChan
+		logrus.WithError(err).Error("error catched")
 		if _, err = f.WriteString(err.Error()); err != nil {
 			logrus.WithError(err).Fatal("unable to save error")
 		}
-
-		logrus.WithError(err).Error("error")
 		for k, _ := range hashesChans {
+			logrus.WithField("worker", k).Debug("trying to close workers")
 			close(hashesChans[k])
 		}
+		logrus.Debug("workers closed")
 	}()
 
 	// Read hashes
@@ -107,6 +108,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 }
 
 func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan struct{}, chan Hash) {
+	logrus.WithField("worker", id).WithField("words", dictionary).Debug("Dictionary")
 	resetChan := make(chan struct{})
 	hashesChan := make(chan Hash)
 
@@ -148,13 +150,28 @@ func closeWorkers(hashesChans map[int]chan Hash) {
 }
 func splitSlice(s []string, n int) [][]string {
 	var divided [][]string
-	chunkSize := (len(s) + n - 1) / n
-	for i := 0; i < len(s); i += chunkSize {
-		end := i + chunkSize
+	var quotient, remainder int
+	var end int
+
+	quotient = len(s) / n
+	remainder = len(s) % n
+
+	for i := 0; i < n; i++ {
+		start := end
+		end = start + quotient
+
+		if remainder > 0 {
+			end++
+			remainder--
+		}
+
 		if end > len(s) {
 			end = len(s)
 		}
-		divided = append(divided, s[i:end])
+
+		if len(s[start:end]) != 0 {
+			divided = append(divided, s[start:end])
+		}
 	}
 
 	return divided
