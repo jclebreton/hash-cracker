@@ -48,6 +48,7 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 	// Init provider
 	if err := p.Prepare(); err != nil {
 		errChan <- errors.Wrap(err, "unable to prepare dictionary provider")
+		return
 	}
 
 	bar1.Total = p.GetTotal()
@@ -76,11 +77,13 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 	// Last provider error
 	if p.Err() != nil {
 		errChan <- errors.Wrap(p.Err(), "dictionary provider error")
+		return
 	}
 
 	// Close provider
 	if err := p.Close(); err != nil {
 		errChan <- errors.Wrap(err, "unable to close dictionary provider")
+		return
 	}
 
 	time.Sleep(time.Second)

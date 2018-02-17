@@ -52,8 +52,19 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 
 	// Provider error
 	go func() {
-		err := <-errChan
-		logrus.WithError(err).Error("dictionary provider error")
+		f, err := os.OpenFile("error.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			logrus.WithError(err).Fatal("unable to open error file")
+		}
+		defer f.Close()
+
+		err = <-errChan
+
+		if _, err = f.WriteString(err.Error()); err != nil {
+			logrus.WithError(err).Fatal("unable to save error")
+		}
+
+		logrus.WithError(err).Error("error")
 		for k, _ := range hashesChans {
 			close(hashesChans[k])
 		}
@@ -66,7 +77,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	go func() {
 		f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			logrus.WithError(err).Fatal("output file error")
+			logrus.WithError(err).Fatal("unable to open output file")
 		}
 		defer f.Close()
 
