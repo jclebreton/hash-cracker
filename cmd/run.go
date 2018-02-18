@@ -11,13 +11,14 @@ import (
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
+	"github.com/jclebreton/hash-cracker/randomizer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
 // Run will start the process
-func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int) {
+func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int, randomize bool) {
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
 	resultChan := make(chan map[int]Hash, 10000)
@@ -27,7 +28,8 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 	pbDictionary.Start()
 	pbDictionary.ShowPercent = true
 	pbDictionary.ShowTimeLeft = true
-	dictionary, err := DictionaryReader(pbDictionary, d)
+	r := &randomizer.Numbers{}
+	dictionary, err := DictionaryReader(pbDictionary, d, r, randomize)
 	if err != nil {
 		logrus.WithError(err).Error("dictionary provider error")
 	}

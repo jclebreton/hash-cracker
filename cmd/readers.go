@@ -7,13 +7,14 @@ import (
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
+	"github.com/jclebreton/hash-cracker/randomizer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 // DictionaryReader returns the dictionary file
-func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider) ([]string, error) {
+func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, r randomizer.Randomizer, randomize bool) ([]string, error) {
 	defer bar.Finish()
 
 	// Init provider
@@ -26,8 +27,16 @@ func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider) ([]string, e
 	// Read values
 	result := []string{}
 	for p.Next() {
-		result = append(result, p.Value())
-		bar.Increment()
+		if randomize {
+			plains := r.Randomize(p.Value())
+			result = append(result, plains...)
+			n := len(plains)
+			bar.Total += int64(n - 1)
+			bar.Add(n)
+		} else {
+			result = append(result, p.Value())
+			bar.Increment()
+		}
 	}
 
 	// Last provider error
@@ -58,7 +67,6 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 
 	// Read values and sent them to workers
 	for p.Next() {
-
 		//Build hash
 		hash := Hash{}
 		hash.SetHasher(hasher)
