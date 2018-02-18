@@ -9,6 +9,8 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"github.com/jclebreton/hash-cracker/dictionaries"
 	"github.com/jclebreton/hash-cracker/hashers"
 	"github.com/jclebreton/hash-cracker/randomizer"
@@ -16,6 +18,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/cheggaaa/pb.v1"
 )
+
+var StartDate time.Time
+
+func init() {
+	StartDate = time.Now()
+}
 
 // Run will start the process
 func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher, nbWorkers int, randomize bool) {
@@ -121,6 +129,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 
 	wg.Wait()
 	pool.Stop()
+	logrus.Infof("finish in %s", time.Now().Sub(StartDate))
 }
 
 func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan Hash, chan Hash, *pb.ProgressBar) {

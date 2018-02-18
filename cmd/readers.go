@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"time"
-
 	"fmt"
 
 	"github.com/jclebreton/hash-cracker/dictionaries"
@@ -102,6 +100,5 @@ func HashesReader(pbHashes *pb.ProgressBar, pbCracked *pb.ProgressBar, p diction
 		return
 	}
 
-	time.Sleep(time.Second)
 	closeWorkers(hashesChans)
 }
