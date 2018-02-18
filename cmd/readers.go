@@ -14,7 +14,9 @@ import (
 )
 
 // DictionaryReader returns the dictionary file
-func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, r randomizer.Randomizer, randomize bool) ([]string, error) {
+func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, r randomizer.Randomizer,
+	randomize bool) ([]string, error) {
+
 	defer bar.Finish()
 
 	// Init provider
@@ -53,8 +55,10 @@ func DictionaryReader(bar *pb.ProgressBar, p dictionaries.Provider, r randomizer
 }
 
 // HashesReader returns the hashes
-func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Provider, errChan chan error, hashesChans map[int]chan Hash, hasher hashers.Hasher) {
-	defer bar1.Finish()
+func HashesReader(pbHashes *pb.ProgressBar, pbCracked *pb.ProgressBar, p dictionaries.Provider, errChan chan error,
+	hashesChans map[int]chan Hash, hasher hashers.Hasher) {
+
+	defer pbHashes.Finish()
 
 	// Init provider
 	if err := p.Prepare(); err != nil {
@@ -62,7 +66,7 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 		return
 	}
 
-	bar1.Total = p.GetTotal()
+	pbHashes.Total = p.GetTotal()
 	var current int64
 
 	// Read values and sent them to workers
@@ -81,9 +85,9 @@ func HashesReader(bar1 *pb.ProgressBar, bar2 *pb.ProgressBar, p dictionaries.Pro
 			hashesChans[workerID] <- hash
 		}
 
-		bar1.Increment()
+		pbHashes.Increment()
 		current++
-		bar2.Total = current
+		pbCracked.Total = current
 	}
 
 	// Last provider error

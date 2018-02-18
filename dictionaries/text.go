@@ -32,7 +32,7 @@ func (d *TextFile) GetName() string {
 
 // Prepare initializes the dictionary source
 func (d *TextFile) Prepare() error {
-	//lines
+	//count lines
 	file, err := os.OpenFile(d.path, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "os.OpenFile error")

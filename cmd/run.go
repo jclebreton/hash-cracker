@@ -102,8 +102,6 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 		for {
 			result := <-resultChan
 			for chanID, hash := range result {
-				pbCracked.Increment()
-
 				text := hash.GetHash() + "\t" + hash.GetPlain() + "\n"
 				if _, err = f.WriteString(text); err != nil {
 					logrus.WithError(err).Fatal("unable to save results")
@@ -115,6 +113,8 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 						resetChans[k] <- hash
 					}
 				}
+
+				pbCracked.Increment()
 			}
 		}
 	}()
@@ -125,7 +125,7 @@ func Run(h dictionaries.Provider, d dictionaries.Provider, hasher hashers.Hasher
 
 func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]Hash) (chan Hash, chan Hash, *pb.ProgressBar) {
 	logrus.WithField("Worker", id).WithField("words", dictionary).Debug("Dictionary")
-	resetChan := make(chan Hash)
+	resetChan := make(chan Hash, 100)
 	hashesChan := make(chan Hash)
 	bar := pb.New(len(dictionary)).SetUnits(pb.U_NO).Prefix(fmt.Sprintf("worker %d", id))
 	bar.ShowPercent = true
