@@ -42,6 +42,6 @@ Hashes 2 / 2 [==================================================================
 Cracked 2 / 2 [===========================================================================] 100.00%   
 
 $ cat error.txt output.txt
-d2rsph111lxo3twka829f192f7fd38700cacdc5c645596ce3e9d09b1:qwerty1234
-d2rsph111lxo3twk39e169d94697bc5fc3e9da8bd17b0c23677a7583:12345xxx
+d2rsph111lxo3twka829f192f7fd38700cacdc5c645596ce3e9d09b1    qwerty1234
+d2rsph111lxo3twk39e169d94697bc5fc3e9da8bd17b0c23677a7583    12345xxx
 ```
