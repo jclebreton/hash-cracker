@@ -44,7 +44,7 @@ func checkArgs(args []string) error {
 func runCmd(args []string) {
 	logrus.Infof("%d logical cpu", runtime.NumCPU())
 	if ramdomize {
-		logrus.Info("random dictionary mode enable")
+		logrus.Info("randomize passwords dictionary enable")
 	}
 	hashes := dictionaries.New(args[0])
 	dictionary := dictionaries.New(args[1])

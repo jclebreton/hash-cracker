@@ -1,7 +1,9 @@
 vendor
 *.gz
-*.txt
 *.deb
 hash-cracker
 SHA256SUMS
 MD5SUMS
+lbc/*
+error.txt
+output.txt
