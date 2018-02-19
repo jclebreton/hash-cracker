@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/jclebreton/hash-cracker/cmd"
+	"github.com/jclebreton/hash-cracker/cli"
+	"github.com/jclebreton/hash-cracker/infrastructures/comparators"
 	"github.com/sirupsen/logrus"
 )
 
@@ -10,7 +11,8 @@ var version = "dev"
 var buildDate = "no build date"
 
 func main() {
-	if err := cmd.InitRootCmd().Execute(); err != nil {
-		logrus.WithError(err).Fatal("Something wrong happen when running the command.")
+	hasher := &comparators.Sha1WithSalt{}
+	if err := cli.InitRootCmd(hasher).Execute(); err != nil {
+		logrus.WithError(err).Fatal("Something wrong happens when running the command.")
 	}
 }

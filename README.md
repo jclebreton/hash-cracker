@@ -6,8 +6,8 @@ and *hashers* interfaces
 
 ### Available dictionaries
 
-- text file
-- text file with randomization
+- text file (one by line)
+- text file (with passwords generation)
 
 ### Available hashers
 
@@ -18,16 +18,16 @@ and *hashers* interfaces
 ```
 $ dep ensure
 $ go install
-$ hash-cracker <hash-path> <dictionary-path> --random
+$ hash-cracker <hash-path> <dictionary-path> --generate
 ```
 
 #### Example using dictionary example
 
 ```
-$ hash-cracker examples/hashes.txt examples/dico-passwords.txt --random
+$ hash-cracker examples/hashes.txt examples/dico-passwords.txt --generate
 
-INFO[0000] 8 logical cpu                                
-INFO[0000] random dictionary mode enable                
+INFO[0000] 8 logical CPUs                                
+INFO[0000] passwords dictionary generation enable                
 Dictionary 1300 / 1300 [===============================================================] 100.00% 0s
 INFO[0000] 8 workers                                    
 worker 1 10 / 163 [=====>-----------------------------------------------------------------]   6.13%
@@ -40,6 +40,7 @@ worker 7 162 / 162 [============================================================
 worker 8 162 / 162 [======================================================================] 100.00%
 Hashes 2 / 2 [=========================================================================] 100.00% 1s
 Cracked 2 / 2 [===========================================================================] 100.00%   
+INFO[0000] finish in 1.884776ms
 
 $ cat error.txt output.txt
 d2rsph111lxo3twka829f192f7fd38700cacdc5c645596ce3e9d09b1    qwerty1234

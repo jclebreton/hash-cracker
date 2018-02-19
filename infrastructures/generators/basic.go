@@ -1,15 +1,15 @@
-package randomizer
+package generators
 
 import (
 	"fmt"
 	"strings"
 )
 
-// Numbers
-type Numbers struct {
+// Basic
+type Basic struct {
 }
 
-func (n *Numbers) suffixWithNumbers(plain string, min, max int) []string {
+func (n *Basic) suffixWithNumbers(plain string, min, max int) []string {
 	var result []string
 	current := plain
 	for i := min; i <= max; i++ {
@@ -19,11 +19,11 @@ func (n *Numbers) suffixWithNumbers(plain string, min, max int) []string {
 	return result
 }
 
-func (n *Numbers) title(plain string) string {
+func (n *Basic) title(plain string) string {
 	return strings.Title(plain)
 }
 
-func (n *Numbers) Randomize(plain string) []string {
+func (n *Basic) Generate(plain string) []string {
 	var result []string
 	result = append(result, plain)
 	result = append(result, n.suffixWithNumbers(plain, 1, 9)...)

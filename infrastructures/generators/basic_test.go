@@ -1,4 +1,4 @@
-package randomizer
+package generators
 
 import (
 	"testing"
@@ -18,7 +18,7 @@ func Test_addSuffixNumbers_success(t *testing.T) {
 		"qwerty12345678",
 		"qwerty123456789",
 	}
-	numbers := &Numbers{}
+	numbers := &Basic{}
 	result := numbers.suffixWithNumbers("qwerty", 1, 9)
 	for k, _ := range expected {
 		assert.Equal(t, expected[k], result[k])
@@ -26,13 +26,13 @@ func Test_addSuffixNumbers_success(t *testing.T) {
 }
 
 func Test_title_success(t *testing.T) {
-	numbers := &Numbers{}
+	numbers := &Basic{}
 	assert.Equal(t, "Qwerty", numbers.title("qwerty"))
 }
 
 func TestRandomize_success(t *testing.T) {
-	numbers := &Numbers{}
-	result := numbers.Randomize("qwerty")
+	numbers := &Basic{}
+	result := numbers.Generate("qwerty")
 	assert.Equal(t, 20, len(result))
 	assert.Equal(t, "qwerty", result[0])
 	assert.Equal(t, "qwerty1", result[1])

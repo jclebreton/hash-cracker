@@ -1,4 +1,4 @@
-package dictionaries
+package readers
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 )
 
 // TextFile contains all file meta data
-type TextFile struct {
+type TextFileReader struct {
 	path    string
 	scanner *bufio.Scanner
 	value   string
@@ -21,17 +21,17 @@ type TextFile struct {
 }
 
 // NewDictionaryFromFile is the constructor
-func New(path string) *TextFile {
-	return &TextFile{path: path}
+func NewTextFileReader(path string) *TextFileReader {
+	return &TextFileReader{path: path}
 }
 
 // GetName returns the provider name
-func (d *TextFile) GetName() string {
+func (d *TextFileReader) GetName() string {
 	return d.path
 }
 
 // Prepare initializes the dictionary source
-func (d *TextFile) Prepare() error {
+func (d *TextFileReader) Prepare() error {
 	//count lines
 	file, err := os.OpenFile(d.path, os.O_RDONLY, os.ModePerm)
 	if err != nil {
@@ -53,7 +53,7 @@ func (d *TextFile) Prepare() error {
 }
 
 // Next prepares the next value
-func (d *TextFile) Next() bool {
+func (d *TextFileReader) Next() bool {
 	if !d.scanner.Scan() {
 		return false
 	}
@@ -68,22 +68,22 @@ func (d *TextFile) Next() bool {
 }
 
 // Value returns the current value
-func (d *TextFile) Value() string {
+func (d *TextFileReader) Value() string {
 	return d.value
 }
 
 // Error returns the last error
-func (d *TextFile) Err() error {
+func (d *TextFileReader) Err() error {
 	return d.err
 }
 
 // Close closes the file
-func (d *TextFile) Close() error {
+func (d *TextFileReader) Close() error {
 	return d.file.Close()
 }
 
 // GetTotal returns the number of lines
-func (d *TextFile) GetTotal() int64 {
+func (d *TextFileReader) GetTotal() int64 {
 	return d.total
 }
 

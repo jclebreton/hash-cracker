@@ -1,4 +1,4 @@
-package dictionaries
+package readers
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ var testFile = "test.txt"
 func createFile(t *testing.T) {
 	f, err := os.Create(testFile)
 	require.NoError(t, err)
-	_, err = f.WriteString("azerty1234\nqwerty1234\nfoo\nbar\n")
+	_, err = f.WriteString("azerty1234\nqwerty1234\nfoo\nBar\n")
 	require.NoError(t, err)
 }
 
@@ -26,7 +26,7 @@ func removeFile(t *testing.T) {
 
 func TestPrepare_success(t *testing.T) {
 	createFile(t)
-	d := New(testFile)
+	d := NewTextFileReader(testFile)
 	err := d.Prepare()
 	require.NoError(t, err)
 	assert.Equal(t, int64(4), d.GetTotal())
@@ -35,7 +35,7 @@ func TestPrepare_success(t *testing.T) {
 
 func TestGetName_success(t *testing.T) {
 	createFile(t)
-	d := New(testFile)
+	d := NewTextFileReader(testFile)
 	err := d.Prepare()
 	require.NoError(t, err)
 	assert.Equal(t, testFile, d.GetName())
@@ -44,20 +44,20 @@ func TestGetName_success(t *testing.T) {
 
 func TestPrepare_error_open_file(t *testing.T) {
 	removeFile(t)
-	d := New(testFile)
+	d := NewTextFileReader(testFile)
 	err := d.Prepare()
 	require.Error(t, err)
 }
 
 func TestClose_error(t *testing.T) {
-	d := &TextFile{}
+	d := &TextFileReader{}
 	err := d.Close()
 	require.Error(t, err)
 }
 
 func TestClose_success(t *testing.T) {
 	createFile(t)
-	d := New(testFile)
+	d := NewTextFileReader(testFile)
 	err := d.Prepare()
 	require.NoError(t, err)
 	err = d.Close()
@@ -67,7 +67,7 @@ func TestClose_success(t *testing.T) {
 
 func TestNext_success(t *testing.T) {
 	createFile(t)
-	d := New(testFile)
+	d := NewTextFileReader(testFile)
 
 	err := d.Prepare()
 	require.NoError(t, err)
@@ -82,7 +82,7 @@ func TestNext_success(t *testing.T) {
 	assert.Equal(t, "foo", d.Value())
 
 	assert.True(t, d.Next())
-	assert.Equal(t, "bar", d.Value())
+	assert.Equal(t, "Bar", d.Value())
 
 	//Last line
 	assert.False(t, d.Next())
@@ -91,7 +91,7 @@ func TestNext_success(t *testing.T) {
 }
 
 func TestErr_error(t *testing.T) {
-	d := &TextFile{}
+	d := &TextFileReader{}
 	d.err = errors.New("foo")
 	err := d.Err()
 	require.Error(t, err)
