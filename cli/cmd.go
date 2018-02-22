@@ -40,15 +40,15 @@ func runCmd(hashPath, dictionaryPath string, hasher comparators.Comparator) {
 		logrus.Info("passwords dictionary generation enable")
 	}
 
-	// Build dictionary provider
-	dictionaryProvider := readers.DictionaryReader{
+	// Build dictionary reader
+	dictionaryReader := readers.DictionaryReader{
 		ProgressBar:        progress.NewProgressBar("Dictionary"),
 		DictionaryProvider: readers.NewTextFileReader(dictionaryPath),
 		PasswordsGenerator: &generators.Basic{},
 	}
 
-	// Build hashes provider
-	hashesProvider := readers.HashesReader{
+	// Build hashes reader
+	hashesReader := readers.HashesReader{
 		ProgressBarHashes:  progress.NewProgressBar("Hashes"),
 		ProgressBarCracked: progress.NewProgressBar("Cracked"),
 		HashesProvider:     readers.NewTextFileReader(hashPath),
@@ -57,8 +57,8 @@ func runCmd(hashPath, dictionaryPath string, hasher comparators.Comparator) {
 	// Run
 	crackHashesHandler := &usecases.CrackHashesUsingDictionaryHandler{
 		HashComparator:    hasher,
-		DictionaryReader:  dictionaryProvider,
-		HashesReader:      hashesProvider,
+		DictionaryReader:  dictionaryReader,
+		HashesReader:      hashesReader,
 		ProgressBarPooler: &progress.CheggaaaPool{},
 	}
 	crackHashesHandler.Handle(runtime.NumCPU(), randomize)
