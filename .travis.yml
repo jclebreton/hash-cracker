@@ -7,9 +7,11 @@ go:
 install:
   - go get -u github.com/golang/dep/cmd/dep
   - dep ensure
+  - "./scripts/install_linter.sh"
 
 script:
   - "./scripts/run_tests_with_coverage.sh"
+  - "./scripts/linter.sh"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
