@@ -10,9 +10,14 @@ import (
 var version = "dev"
 var buildDate = "no build date"
 
+func init() {
+	//logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
+}
+
 func main() {
 	hasher := &comparators.Sha1WithSalt{}
-	if err := cli.InitRootCmd(hasher).Execute(); err != nil {
+	if err := cli.InitRootCmd(version, buildDate, hasher).Execute(); err != nil {
 		logrus.WithError(err).Fatal("Something wrong happens when running the command.")
 	}
 }

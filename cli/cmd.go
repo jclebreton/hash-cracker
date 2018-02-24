@@ -14,27 +14,25 @@ import (
 
 var randomize bool
 
-func init() {
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetLevel(logrus.InfoLevel)
-}
-
-// InitRootCmd configure and initialized hash-cracker command
-func InitRootCmd(hasher comparators.Comparator) *cobra.Command {
+// InitRootCmd configure and initialized the cli
+func InitRootCmd(version, buildDate string, hasher comparators.Comparator) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "hash-cracker [hashes-path] [dictionary-hash]",
 		Short: "hash-cracker is a tool to crack cryptographic hash function",
 		Long:  `hash-cracker is a tool to crack cryptographic hash function using Providers and Comparators interfaces`,
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			runCmd(args[0], args[1], hasher)
+			crackHashesUsingDictionaryUseCase(args[0], args[1], hasher)
 		},
 	}
 	rootCmd.Flags().BoolVarP(&randomize, "generate", "g", false, "generate passwords from dictionary")
+
+	rootCmd.AddCommand(versionCmd(version, buildDate))
+
 	return rootCmd
 }
 
-func runCmd(hashPath, dictionaryPath string, hasher comparators.Comparator) {
+func crackHashesUsingDictionaryUseCase(hashPath, dictionaryPath string, hasher comparators.Comparator) {
 	logrus.Infof("%d logical CPUs", runtime.NumCPU())
 	if randomize {
 		logrus.Info("passwords dictionary generation enable")
