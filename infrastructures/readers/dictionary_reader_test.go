@@ -8,7 +8,8 @@ import (
 
 func Test_splitSlice_nbworkers(t *testing.T) {
 	tests := []struct {
-		dictionary    []string
+		dictionary []string
+
 		nbWorkers     int
 		expectedNbDic int
 	}{
