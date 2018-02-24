@@ -20,7 +20,7 @@ func Test_addSuffixNumbers_success(t *testing.T) {
 	}
 	numbers := &Basic{}
 	result := numbers.suffixWithNumbers("qwerty", 1, 9)
-	for k, _ := range expected {
+	for k := range expected {
 		assert.Equal(t, expected[k], result[k])
 	}
 }

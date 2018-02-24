@@ -1,6 +1,6 @@
 package readers
 
-// DictionaryReader is the interface used to provide dictionaries
+// DictionaryProvider is the interface used to provide dictionaries
 type DictionaryProvider interface {
 	Prepare() error
 	Next() bool
@@ -12,7 +12,7 @@ type DictionaryProvider interface {
 	GetTotal() int64
 }
 
-// HashesReader is the interface used to provide hashes
+// HashesProvider is the interface used to provide hashes
 type HashesProvider interface {
 	Prepare() error
 	Next() bool

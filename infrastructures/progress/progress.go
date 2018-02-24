@@ -1,7 +1,7 @@
 package progress
 
-// CheggaaBar is the interface used to manipulate a progress Bar
-type ProgressBarer interface {
+// Barer is the interface used to manipulate a progress Bar
+type Barer interface {
 	Set(value int)
 	SetTotal(total int64)
 	Add(add int64)
@@ -12,9 +12,9 @@ type ProgressBarer interface {
 	Finish()
 }
 
-// ProgressBarPooler is the interface to manipulate a lot of progress bars
-type ProgressBarPooler interface {
-	Add(bar ProgressBarer)
+// BarPooler is the interface to manipulate a lot of progress bars
+type BarPooler interface {
+	Add(bar Barer)
 	Start() error
 	Stop() error
 }

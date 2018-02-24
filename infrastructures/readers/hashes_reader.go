@@ -6,13 +6,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// HashesReader is the HashesProvider interface implementation
 type HashesReader struct {
-	ProgressBarHashes  progress.ProgressBarer
-	ProgressBarCracked progress.ProgressBarer
+	ProgressBarHashes  progress.Barer
+	ProgressBarCracked progress.Barer
 	HashesProvider     HashesProvider
 }
 
-// HashesReader returns the hashes
+// Reader returns the hashes
 func (h *HashesReader) Reader(errChan chan error, hashesChans map[int]chan domains.Hash) {
 
 	defer h.ProgressBarHashes.Finish()
@@ -31,7 +32,7 @@ func (h *HashesReader) Reader(errChan chan error, hashesChans map[int]chan domai
 		hash := domains.Hash{Hash: h.HashesProvider.Value()}
 
 		// Send the same hash to all workers
-		for workerID, _ := range hashesChans {
+		for workerID := range hashesChans {
 			hashesChans[workerID] <- hash
 		}
 
@@ -56,7 +57,7 @@ func (h *HashesReader) Reader(errChan chan error, hashesChans map[int]chan domai
 }
 
 func closeWorkers(hashesChans map[int]chan domains.Hash) {
-	for workerID, _ := range hashesChans {
+	for workerID := range hashesChans {
 		close(hashesChans[workerID])
 	}
 }

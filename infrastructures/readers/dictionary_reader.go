@@ -6,13 +6,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DictionaryReader is the DictionaryProvider interface implementation
 type DictionaryReader struct {
-	ProgressBar        progress.ProgressBarer
+	ProgressBar        progress.Barer
 	DictionaryProvider DictionaryProvider
 	PasswordsGenerator generators.Generator
 }
 
-// DictionaryReader returns the dictionary content
+// Reader returns the dictionary content
 func (d *DictionaryReader) Reader(randomize bool, nbWorkers int) ([][]string, error) {
 	defer d.ProgressBar.Finish()
 

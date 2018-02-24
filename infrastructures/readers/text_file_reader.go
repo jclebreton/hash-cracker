@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TextFile contains all file meta data
+// TextFileReader contains all file meta data
 type TextFileReader struct {
 	path    string
 	scanner *bufio.Scanner
@@ -20,7 +20,7 @@ type TextFileReader struct {
 	total   int64
 }
 
-// NewDictionaryFromFile is the constructor
+// NewTextFileReader is the constructor
 func NewTextFileReader(path string) *TextFileReader {
 	return &TextFileReader{path: path}
 }
@@ -72,7 +72,7 @@ func (d *TextFileReader) Value() string {
 	return d.value
 }
 
-// Error returns the last error
+// Err returns the last error
 func (d *TextFileReader) Err() error {
 	return d.err
 }

@@ -13,7 +13,7 @@ import (
 type Sha1WithSalt struct {
 }
 
-// Compare
+// Compare does the matching between an Hash and a plain password
 func (comparator *Sha1WithSalt) Compare(hash domains.Hash, plain string) (bool, error) {
 	// Retrieve salt
 	if len(hash.Hash) != 56 {

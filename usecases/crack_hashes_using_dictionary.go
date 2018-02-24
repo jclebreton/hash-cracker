@@ -19,20 +19,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var StartDate time.Time
+var startDate time.Time
 
 func init() {
-	StartDate = time.Now()
+	startDate = time.Now()
 }
 
+// CrackHashesUsingDictionaryHandler is the interactor
 type CrackHashesUsingDictionaryHandler struct {
 	HashComparator    comparators.Comparator
 	DictionaryReader  readers.DictionaryReader
 	HashesReader      readers.HashesReader
-	ProgressBarPooler progress.ProgressBarPooler
+	ProgressBarPooler progress.BarPooler
 }
 
-// Run will start the process
+// Handle cracks hashes using dictionary
 func (handler *CrackHashesUsingDictionaryHandler) Handle(nbWorkers int, randomize bool) {
 	wg := sync.WaitGroup{}
 	errChan := make(chan error)
@@ -82,7 +83,7 @@ func (handler *CrackHashesUsingDictionaryHandler) Handle(nbWorkers int, randomiz
 		if _, err = f.WriteString(err.Error()); err != nil {
 			logrus.WithError(err).Fatal("unable to save error")
 		}
-		for k, _ := range hashesChans {
+		for k := range hashesChans {
 			logrus.WithField("worker", k).Debug("trying to close workers")
 			close(hashesChans[k])
 		}
@@ -109,7 +110,7 @@ func (handler *CrackHashesUsingDictionaryHandler) Handle(nbWorkers int, randomiz
 				}
 
 				//Reset all worker excepted
-				for k, _ := range resetChans {
+				for k := range resetChans {
 					if k != chanID {
 						resetChans[k] <- hash
 					}
@@ -123,7 +124,7 @@ func (handler *CrackHashesUsingDictionaryHandler) Handle(nbWorkers int, randomiz
 	wg.Wait()
 	handler.ProgressBarPooler.Stop()
 
-	logrus.Infof("finish in %s", time.Now().Sub(StartDate))
+	logrus.Infof("finish in %s", time.Now().Sub(startDate))
 }
 
 func worker(id int, wg *sync.WaitGroup, errChan chan error, dictionary []string, resultChan chan map[int]domains.Hash,

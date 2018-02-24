@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Basic
+// Basic is a basic implementation of a password generator
 type Basic struct {
 }
 
@@ -23,6 +23,7 @@ func (n *Basic) title(plain string) string {
 	return strings.Title(plain)
 }
 
+// Generate returns generated plain passwords
 func (n *Basic) Generate(plain string) []string {
 	var result []string
 	result = append(result, plain)
