@@ -23,10 +23,7 @@ func (comparator *Sha1WithSalt) Compare(hash domains.Hash, plain string) (bool, 
 
 	// Build new hash
 	h := sha1.New()
-	_, err := h.Write([]byte(salt + plain))
-	if err != nil {
-		return false, errors.Wrap(err, "Compare error")
-	}
+	h.Write([]byte(salt + plain)) // no errors
 	newHash := hex.EncodeToString(h.Sum(nil))
 	newHash = fmt.Sprintf("%s%s", salt, newHash)
 
