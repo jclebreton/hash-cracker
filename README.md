@@ -1,4 +1,4 @@
-# hash-cracker [![Build Status](https://travis-ci.org/jclebreton/hash-cracker.svg?branch=master)](https://travis-ci.org/jclebreton/hash-cracker)
+# hash-cracker [![Build Status](https://travis-ci.org/jclebreton/hash-cracker.svg?branch=master)](https://travis-ci.org/jclebreton/hash-cracker) [![Go Report Card](https://goreportcard.com/badge/github.com/jclebreton/hash-cracker)](https://goreportcard.com/report/github.com/jclebreton/hash-cracker)
 
 *hash-cracker*  is a tool to crack *cryptographic hash function* using *dictionaries*
 and *hashers* interfaces
