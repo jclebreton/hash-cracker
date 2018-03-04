@@ -1,9 +1,9 @@
 package readers
 
 import (
-	"testing"
-	"os"
 	"github.com/stretchr/testify/require"
+	"os"
+	"testing"
 )
 
 var testFile = "test.txt"
