@@ -1,4 +1,4 @@
-# hash-cracker [![Build Status](https://travis-ci.org/jclebreton/hash-cracker.svg?branch=master)](https://travis-ci.org/jclebreton/hash-cracker) [![Go Report Card](https://goreportcard.com/badge/github.com/jclebreton/hash-cracker)](https://goreportcard.com/report/github.com/jclebreton/hash-cracker) [![GoDoc](https://godoc.org/github.com/jclebreton/hash-cracker?status.svg)](https://godoc.org/github.com/jclebreton/hash-cracker)
+# hash-cracker ![](https://github.com/jclebreton/hash-cracker/workflows/Tests/badge.svg) ![](https://github.com/jclebreton/hash-cracker/workflows/Releases/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/jclebreton/hash-cracker)](https://goreportcard.com/report/github.com/jclebreton/hash-cracker) [![GoDoc](https://godoc.org/github.com/jclebreton/hash-cracker?status.svg)](https://godoc.org/github.com/jclebreton/hash-cracker)
 
 *hash-cracker*  is a tool to crack *cryptographic hash function* using *dictionaries*
 and *hashers* interfaces
@@ -23,25 +23,25 @@ Go to [latest release](https://github.com/jclebreton/hash-cracker/releases/lates
 1. Start program:
 
     Linux:
-    ```shell script
+    ```
     $ chmod a+x hash-cracker_linux-amd64 <hash-path> <dictionary-path> --generate
     $ ./hash-cracker_linux-amd64
     ```
    
     MacOS:
-    ```shell script
+    ```
     $ chmod a+x hash-cracker_darwin-amd64 <hash-path> <dictionary-path> --generate
     $ ./hash-cracker_darwin-amd64
     ```
    
     Windows:
-    ```shell script
+    ```
     C:\....\hash-cracker_windows-amd64.exe <hash-path> <dictionary-path> --generate
     ```
    
 2. Running:
 
-    ```shell script
+    ```
     $ hash-cracker examples/hashes.txt examples/dico-passwords.txt --generate
     INFO[0000] 8 logical CPUs                                
     INFO[0000] passwords dictionary generation enable                
