@@ -16,7 +16,6 @@ and *hashers* interfaces
 ### Build & Run
 
 ```
-$ dep ensure
 $ go install
 $ hash-cracker <hash-path> <dictionary-path> --generate
 ```
